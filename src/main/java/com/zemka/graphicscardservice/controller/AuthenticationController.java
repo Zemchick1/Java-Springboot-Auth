@@ -3,6 +3,8 @@ package com.zemka.graphicscardservice.controller;
 import com.zemka.graphicscardservice.model.dto.AuthenticationDTO;
 import com.zemka.graphicscardservice.service.AuthenticationService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,13 +19,13 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public ResponseEntity<Boolean> register(@RequestBody AuthenticationDTO authenticationDTO,
+    public ResponseEntity<Boolean> register(@RequestBody @Valid @NotNull AuthenticationDTO authenticationDTO,
                                             HttpServletResponse response) {
         return authenticationService.register(authenticationDTO, response);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Boolean> login(@RequestBody AuthenticationDTO authenticationDTO,
+    public ResponseEntity<Boolean> login(@RequestBody @NotNull AuthenticationDTO authenticationDTO,
                                          HttpServletResponse response) {
         return authenticationService.login(authenticationDTO, response);
     }

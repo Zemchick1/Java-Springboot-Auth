@@ -1,4 +1,4 @@
-package utils;
+package com.zemka.graphicscardservice.utils;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,7 +29,7 @@ public class CookieUtils {
         ResponseCookie cookie = ResponseCookie.from(name, value)
                 .httpOnly(true)
 //                .secure(true)
-                .domain(website_domain) // TODO CHANGE
+                .domain(website_domain)
                 .path("/")
                 .maxAge(maxAge)
                 .sameSite("Strict")

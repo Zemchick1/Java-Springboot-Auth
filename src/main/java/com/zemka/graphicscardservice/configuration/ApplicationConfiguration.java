@@ -1,5 +1,6 @@
 package com.zemka.graphicscardservice.configuration;
 
+import com.zemka.graphicscardservice.exception.BadRequestException;
 import com.zemka.graphicscardservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -27,7 +28,8 @@ public class ApplicationConfiguration {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return email -> userRepository.findByEmail(email).orElseThrow(); // TODO Exception
+        return email -> userRepository.findByEmail(email).orElseThrow(
+                () -> new BadRequestException("Bad Request"));
     }
 
     @Bean

@@ -1,5 +1,6 @@
 package com.zemka.graphicscardservice.model.entity;
 
+import com.zemka.graphicscardservice.utils.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,7 +9,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import utils.enums.Role;
 
 import java.util.Collection;
 import java.util.List;

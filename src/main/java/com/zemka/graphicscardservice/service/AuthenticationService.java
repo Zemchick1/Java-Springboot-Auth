@@ -1,8 +1,11 @@
 package com.zemka.graphicscardservice.service;
 
+import com.zemka.graphicscardservice.exception.BadRequestException;
 import com.zemka.graphicscardservice.model.dto.AuthenticationDTO;
 import com.zemka.graphicscardservice.model.entity.User;
 import com.zemka.graphicscardservice.repository.UserRepository;
+import com.zemka.graphicscardservice.utils.CookieUtils;
+import com.zemka.graphicscardservice.utils.enums.Role;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,8 +14,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import utils.CookieUtils;
-import utils.enums.Role;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +30,7 @@ public class AuthenticationService {
     public ResponseEntity<Boolean> register(AuthenticationDTO authenticationDTO,
                                             HttpServletResponse response) {
         if (userRepository.countByEmail(authenticationDTO.getEmail()) != 0) {
-            throw new RuntimeException("User with this email is already exists"); // TODO EXCEPTION
+            throw new BadRequestException("User with this email is already exists");
         }
         User user = createNewUser(authenticationDTO);
         user = userRepository.save(user);
@@ -46,7 +47,8 @@ public class AuthenticationService {
                         authenticationDTO.getPassword()
                 )
         );
-        User user = userRepository.findByEmail(authenticationDTO.getEmail()).orElseThrow(); // TODO EXCEPTION
+        User user = userRepository.findByEmail(authenticationDTO.getEmail()).orElseThrow(
+                () -> new BadRequestException("Bad Request"));
         String jwt_token = generateAndSaveJwtToken(user);
         setAuthCookie(jwt_token, response);
         return ResponseEntity.ok(true);
