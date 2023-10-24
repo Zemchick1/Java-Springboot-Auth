@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler { // TODO LOGGER
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleArgumentNotValid(@NotNull MethodArgumentNotValidException ex) {
         List<String> validationErrors = createValidationErrorsList(ex);

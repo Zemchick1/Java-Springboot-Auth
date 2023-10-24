@@ -14,7 +14,6 @@ import java.util.Optional;
 public class CookieUtils {
     @Value("${website_domain}")
     private static String website_domain;
-
     public static Optional<String> getCookieValue(Cookie[] cookies, String name) {
         if (cookies != null && cookies.length > 0) {
             return Arrays.stream(cookies)
