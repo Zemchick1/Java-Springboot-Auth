@@ -3,7 +3,9 @@ package com.zemka.movieservice.service;
 import com.zemka.movieservice.exception.BadRequestException;
 import com.zemka.movieservice.model.dto.AuthenticationDTO;
 import com.zemka.movieservice.model.dto.GetUserResponseDTO;
+import com.zemka.movieservice.model.entity.JwtToken;
 import com.zemka.movieservice.model.entity.User;
+import com.zemka.movieservice.repository.JwtTokenRepository;
 import com.zemka.movieservice.repository.UserRepository;
 import com.zemka.movieservice.utils.CookieUtils;
 import com.zemka.movieservice.utils.enums.Role;
@@ -15,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +32,7 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
+    private final JwtTokenRepository jwtTokenRepository;
 
     public ResponseEntity<Boolean> register(AuthenticationDTO authenticationDTO,
                                             HttpServletResponse response) {
@@ -55,6 +59,25 @@ public class AuthenticationService {
         String jwt_token = generateAndSaveJwtToken(user);
         setAuthCookie(jwt_token, response);
         return ResponseEntity.ok(true);
+    }
+
+    public ResponseEntity<Boolean> logout(HttpServletRequest request, HttpServletResponse response) {
+        String jwtToken_String = getJwtTokenFromRequest(request);
+        setJwtTokenRevokedAndSave(jwtToken_String);
+        clearAuthentication(response);
+        return ResponseEntity.ok(true);
+    }
+
+    private void setJwtTokenRevokedAndSave(String jwtToken_String){
+        JwtToken jwtToken = jwtTokenRepository.findByToken(jwtToken_String).orElseThrow(() ->
+                new BadRequestException("Invalid JWT Token"));
+        jwtToken.set_revoked(true);
+        jwtTokenRepository.save(jwtToken);
+    }
+
+    private void clearAuthentication(HttpServletResponse response){
+        CookieUtils.deleteCookie(response, jwtTokenCookieName);
+        SecurityContextHolder.clearContext();
     }
 
     public ResponseEntity<GetUserResponseDTO> getUser(HttpServletRequest request) {

@@ -37,13 +37,13 @@ public class AuthenticationController {
                     - If the registration is successful, you will receive a boolean value of 'true', indicating that the new user account has been created, and Authentication Cookies have been set.""")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully added a new User"),
-            @ApiResponse(responseCode = "400", description = "User with this email is already exists",
+            @ApiResponse(responseCode = "400", description = "User with this email is already exists or Validation Failed",
                     content = { @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ApiError.class))})
             })
     @PostMapping("/register")
     public ResponseEntity<Boolean> register(@RequestBody @Valid @NotNull AuthenticationDTO authenticationDTO,
-                                            HttpServletResponse response) {
+                                            @NotNull HttpServletResponse response) {
         return authenticationService.register(authenticationDTO, response);
     }
 
@@ -57,11 +57,11 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "200", description = "Successfully logged in"),
             @ApiResponse(responseCode = "400", description = "Bad Credentials",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ApiError.class))})
+                            schema = @Schema(implementation = ApiError.class))}),
     })
     @PostMapping("/login")
     public ResponseEntity<Boolean> login(@RequestBody @NotNull AuthenticationDTO authenticationDTO,
-                                         HttpServletResponse response) {
+                                         @NotNull HttpServletResponse response) {
         return authenticationService.login(authenticationDTO, response);
     }
 
@@ -72,11 +72,14 @@ public class AuthenticationController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully logged out"),
-            // TODO
+            @ApiResponse(responseCode = "400", description = "Authentication Cookies not found",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class))})
     })
     @PostMapping("/logout")
-    public void logout() {
-        // No need for logout logic here as it's handled by the CustomLogoutFilter
+    public ResponseEntity<Boolean> logout(@NotNull HttpServletRequest request,
+                                          @NotNull HttpServletResponse response) {
+        return authenticationService.logout(request, response);
     }
 
     @Operation(
