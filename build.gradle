@@ -44,7 +44,7 @@ jib {
         image = "openjdk:17"
     }
     to {
-        image = "zemchick/graphics-card-service"
+        image = "zemchick/movie-service"
         tags = [version, 'latest']
     }
     container {
