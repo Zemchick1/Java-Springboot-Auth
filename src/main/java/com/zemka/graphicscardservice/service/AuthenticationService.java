@@ -2,10 +2,13 @@ package com.zemka.graphicscardservice.service;
 
 import com.zemka.graphicscardservice.exception.BadRequestException;
 import com.zemka.graphicscardservice.model.dto.AuthenticationDTO;
+import com.zemka.graphicscardservice.model.dto.GetUserResponseDTO;
 import com.zemka.graphicscardservice.model.entity.User;
 import com.zemka.graphicscardservice.repository.UserRepository;
 import com.zemka.graphicscardservice.utils.CookieUtils;
 import com.zemka.graphicscardservice.utils.enums.Role;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,6 +57,17 @@ public class AuthenticationService {
         return ResponseEntity.ok(true);
     }
 
+    public ResponseEntity<GetUserResponseDTO> getUser(HttpServletRequest request) {
+        String jwt_token = getJwtTokenFromRequest(request);
+        String email = jwtService.extractEmail(jwt_token);
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new BadRequestException("Bad Request"));
+        return ResponseEntity.ok(GetUserResponseDTO.builder()
+                .email(user.getEmail())
+                .role(user.getRole().toString())
+                .build());
+    }
+
     private User createNewUser(AuthenticationDTO authenticationDTO) {
         return User.builder()
                 .email(authenticationDTO.getEmail())
@@ -70,5 +84,12 @@ public class AuthenticationService {
         String jwt_token = jwtService.generateToken(user);
         jwtService.saveToken(jwt_token, user);
         return jwt_token;
+    }
+
+    private String getJwtTokenFromRequest(HttpServletRequest request){
+        Cookie[] cookies = request.getCookies();
+        return CookieUtils.getCookieValue(cookies, jwtTokenCookieName).orElseThrow(
+                () -> new BadRequestException("Sorry. You're not Authenticated")
+        );
     }
 }
